@@ -21,6 +21,7 @@ func NewOfficeLoadImitator(oc *mongo.Collection) *OfficeLoadImitator {
 func (o *OfficeLoadImitator) ImitateLoad() {
 	if err := o.ClearLoad(); err != nil {
 		logrus.Printf("error cleaning collection before starting app: %s", err.Error())
+		return
 	}
 
 	for {
@@ -37,18 +38,21 @@ func (o *OfficeLoadImitator) ImitateLoad() {
 			var offices []bson.M
 			if err := cursor.All(context.TODO(), &offices); err != nil {
 				logrus.Printf("error decoding bson: %s", err.Error())
+				return
 			}
 
 			for _, office := range offices {
 				go func(office bson.M) {
 					if err := o.UpdateRow(office, int(office["load"].(int32)+1)); err != nil {
 						logrus.Printf("error incrementing row: %s", err.Error())
+						return
 					}
 
 					time.Sleep(time.Duration(rand.Intn(6)+5) * time.Minute)
 
 					if err := o.UpdateRow(office, int(office["load"].(int32)-1)); err != nil {
 						logrus.Printf("error decrementing row: %s", err.Error())
+						return
 					}
 				}(office)
 			}
