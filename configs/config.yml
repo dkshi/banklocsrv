@@ -1,0 +1,8 @@
+port: "8080"
+
+db:
+  authsource: "admin"
+  username: "mongo"
+  host: "localhost"
+  port: "27017"
+  dbname: "bankloc-db"
